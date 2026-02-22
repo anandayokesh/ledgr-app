@@ -1,66 +1,145 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabaseClient'
+import Link from 'next/link'
 
 export default function Home() {
+  const [transactions, setTransactions] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchTransactions()
+  }, [])
+
+  async function fetchTransactions() {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .order('date', { ascending: false })
+
+      if (error) {
+        throw error
+      }
+      if (data != null) {
+        setTransactions(data)
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Calculate stats
+  const totalBalance = transactions.reduce((acc, curr) =>
+    curr.type === 'Income' ? acc + Number(curr.amount) : acc - Number(curr.amount), 0
+  )
+  const totalIncome = transactions.reduce((acc, curr) =>
+    curr.type === 'Income' ? acc + Number(curr.amount) : acc, 0
+  )
+  const totalExpense = transactions.reduce((acc, curr) =>
+    curr.type === 'Expense' ? acc + Number(curr.amount) : acc, 0
+  )
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="container animate-fade-in" style={{ padding: "2rem", maxWidth: "1000px" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem" }}>
+        <div>
+          <h1 style={{ fontSize: "2.5rem", fontWeight: "700", letterSpacing: "-0.02em" }}>Ledgr</h1>
+          <p style={{ color: "var(--foreground)", opacity: 0.7 }}>Your Personal Transaction Tracker</p>
+        </div>
+        <Link href="/add" className="btn" style={{ borderRadius: "var(--radius-md)" }}>
+          <span style={{ marginRight: "0.5rem" }}>+</span> Add Transaction
+        </Link>
+      </header>
+
+      {/* Summary Cards */}
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.5rem", marginBottom: "3rem" }}>
+        <div className="glass-panel" style={{ padding: "1.5rem" }}>
+          <h3 style={{ fontSize: "1rem", color: "var(--foreground)", opacity: 0.7, marginBottom: "0.5rem" }}>Total Balance</h3>
+          <p style={{ fontSize: "2rem", fontWeight: "700", color: totalBalance >= 0 ? "var(--success)" : "var(--danger)" }}>
+            ${totalBalance.toFixed(2)}
           </p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="glass-panel" style={{ padding: "1.5rem", borderTop: "4px solid var(--success)" }}>
+          <h3 style={{ fontSize: "1rem", color: "var(--foreground)", opacity: 0.7, marginBottom: "0.5rem" }}>Total Income</h3>
+          <p style={{ fontSize: "1.75rem", fontWeight: "600" }}>+${totalIncome.toFixed(2)}</p>
         </div>
-      </main>
-    </div>
-  );
+        <div className="glass-panel" style={{ padding: "1.5rem", borderTop: "4px solid var(--danger)" }}>
+          <h3 style={{ fontSize: "1rem", color: "var(--foreground)", opacity: 0.7, marginBottom: "0.5rem" }}>Total Expense</h3>
+          <p style={{ fontSize: "1.75rem", fontWeight: "600" }}>-${totalExpense.toFixed(2)}</p>
+        </div>
+      </section>
+
+      {/* Transactions List */}
+      <section className="glass-panel" style={{ padding: "2rem" }}>
+        <h2 style={{ fontSize: "1.5rem", marginBottom: "1.5rem", borderBottom: "1px solid var(--border)", paddingBottom: "1rem" }}>
+          Recent Transactions
+        </h2>
+
+        {loading ? (
+          <p style={{ textAlign: "center", opacity: 0.6, padding: "2rem 0" }}>Loading your data...</p>
+        ) : transactions.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "3rem 0" }}>
+            <p style={{ fontSize: "1.2rem", marginBottom: "1rem", opacity: 0.8 }}>No transactions yet.</p>
+            <p style={{ opacity: 0.6, marginBottom: "2rem" }}>Add your first transaction to see it here!</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {transactions.map((t) => (
+              <div key={t.id} style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "1rem", borderRadius: "var(--radius-sm)",
+                background: "var(--surface)", border: "1px solid var(--border)",
+                transition: "var(--transition)"
+              }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateX(5px)";
+                  e.currentTarget.style.borderColor = "var(--primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateX(0)";
+                  e.currentTarget.style.borderColor = "var(--border)";
+                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <div style={{
+                    width: "48px", height: "48px", borderRadius: "50%",
+                    display: "flex", justifyContent: "center", alignItems: "center",
+                    background: t.type === 'Income' ? 'rgba(6, 214, 160, 0.1)' : 'rgba(239, 71, 111, 0.1)',
+                    color: t.type === 'Income' ? 'var(--success)' : 'var(--danger)',
+                    fontSize: "1.2rem"
+                  }}>
+                    {t.type === 'Income' ? '↑' : '↓'}
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: "600", fontSize: "1.1rem" }}>{t.description}</h4>
+                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.25rem", fontSize: "0.85rem", opacity: 0.7 }}>
+                      <span>{new Date(t.date).toLocaleDateString()}</span>
+                      <span>•</span>
+                      <span>{t.category}</span>
+                      <span>•</span>
+                      <span style={{
+                        padding: "0.1rem 0.5rem", borderRadius: "var(--radius-full)",
+                        background: "var(--border)", fontSize: "0.75rem"
+                      }}>{t.necessity}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <p style={{
+                    fontWeight: "700", fontSize: "1.2rem",
+                    color: t.type === 'Income' ? 'var(--success)' : 'var(--foreground)'
+                  }}>
+                    {t.type === 'Income' ? '+' : '-'}${Number(t.amount).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  )
 }
