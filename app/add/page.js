@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
 
 export default function AddTransaction() {
+    const { user, loading: authLoading } = useAuth()
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
@@ -16,6 +18,12 @@ export default function AddTransaction() {
         category: 'Food',
         necessity: 'Need'
     })
+
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push('/login')
+        }
+    }, [user, authLoading, router])
 
     // Predefined options
     const categoriesUrl = {
@@ -48,7 +56,8 @@ export default function AddTransaction() {
                         description: formData.description,
                         type: formData.type,
                         category: formData.category,
-                        necessity: formData.necessity
+                        necessity: formData.necessity,
+                        user_id: user.id
                     }
                 ])
 
@@ -63,6 +72,14 @@ export default function AddTransaction() {
         } finally {
             setLoading(false)
         }
+    }
+
+    if (authLoading || !user) {
+        return (
+            <main className="container animate-fade-in" style={{ padding: "2rem", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+                <p style={{ opacity: 0.6, fontSize: "1.2rem" }}>Loading...</p>
+            </main>
+        )
     }
 
     return (

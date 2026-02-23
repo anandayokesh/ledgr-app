@@ -2,15 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabaseClient'
+import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const { user, profile, loading: authLoading } = useAuth()
+  const router = useRouter()
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchTransactions()
-  }, [])
+    if (user) {
+      fetchTransactions()
+    } else if (!authLoading) {
+      setLoading(false)
+    }
+  }, [user, authLoading])
 
   async function fetchTransactions() {
     try {
@@ -32,6 +40,11 @@ export default function Home() {
     }
   }
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.refresh()
+  }
+
   // Calculate stats
   const totalBalance = transactions.reduce((acc, curr) =>
     curr.type === 'Income' ? acc + Number(curr.amount) : acc - Number(curr.amount), 0
@@ -43,16 +56,51 @@ export default function Home() {
     curr.type === 'Expense' ? acc + Number(curr.amount) : acc, 0
   )
 
+  if (authLoading) {
+    return (
+      <main className="container animate-fade-in" style={{ padding: "2rem", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <p style={{ opacity: 0.6, fontSize: "1.2rem" }}>Loading...</p>
+      </main>
+    )
+  }
+
+  if (!user) {
+    return (
+      <main className="container animate-fade-in" style={{ padding: "2rem", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", textAlign: "center" }}>
+        <h1 style={{ fontSize: "4rem", fontWeight: "800", letterSpacing: "-0.04em", marginBottom: "1rem", background: "linear-gradient(to right, var(--primary), var(--secondary))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Ledgr</h1>
+        <p style={{ fontSize: "1.2rem", opacity: 0.7, maxWidth: "500px", marginBottom: "3rem" }}>
+          Premium transaction tracking to easily manage your assets and liabilities, secure and fully personal.
+        </p>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <Link href="/login" className="btn" style={{ background: "transparent", color: "var(--foreground)", border: "1px solid var(--border)" }}>
+            Log In
+          </Link>
+          <Link href="/signup" className="btn">
+            Sign Up
+          </Link>
+        </div>
+      </main>
+    )
+  }
+
   return (
     <main className="container animate-fade-in" style={{ padding: "2rem", maxWidth: "1000px" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem" }}>
         <div>
-          <h1 style={{ fontSize: "2.5rem", fontWeight: "700", letterSpacing: "-0.02em" }}>Ledgr</h1>
-          <p style={{ color: "var(--foreground)", opacity: 0.7 }}>Your Personal Transaction Tracker</p>
+          <h1 style={{ fontSize: "2.5rem", fontWeight: "700", letterSpacing: "-0.02em" }}>
+            Ledgr
+            {profile?.first_name && <span style={{ opacity: 0.5, marginLeft: "0.5rem" }}>for {profile.first_name}</span>}
+          </h1>
+          <p style={{ color: "var(--foreground)", opacity: 0.7 }}>Dashboard</p>
         </div>
-        <Link href="/add" className="btn" style={{ borderRadius: "var(--radius-md)" }}>
-          <span style={{ marginRight: "0.5rem" }}>+</span> Add Transaction
-        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <button onClick={handleSignOut} style={{ background: "transparent", border: "none", color: "var(--danger)", cursor: "pointer", fontWeight: "600", fontSize: "0.9rem" }}>
+            Sign Out
+          </button>
+          <Link href="/add" className="btn" style={{ borderRadius: "var(--radius-md)" }}>
+            <span style={{ marginRight: "0.5rem" }}>+</span> Add Transaction
+          </Link>
+        </div>
       </header>
 
       {/* Summary Cards */}
