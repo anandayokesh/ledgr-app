@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
+import { Dirham } from '@/components/Dirham'
 
 export default function AddTransaction() {
     const { user, loading: authLoading } = useAuth()
@@ -114,7 +115,7 @@ export default function AddTransaction() {
 
                 {/* Amount */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem" }}>Amount (₹ or $)</label>
+                    <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>Amount (<Dirham />)</label>
                     <input required type="number" name="amount" step="0.01" min="0" value={formData.amount} onChange={handleChange}
                         placeholder="0.00"
                         style={{ padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontSize: "1.5rem", fontWeight: "600" }}
