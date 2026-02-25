@@ -36,7 +36,13 @@ export const AuthProvider = ({ children }) => {
         const getSession = async () => {
             const { data: { session }, error } = await supabase.auth.getSession();
             if (error) {
-                console.error("Error getting session:", error.message);
+                if (error.message.includes('Refresh Token Not Found')) {
+                    // This error is common when the server session is revoked but local storage still has the old token.
+                    // We can silently sign out to clean up the stale local storage state and the user will just be logged out.
+                    await supabase.auth.signOut();
+                } else {
+                    console.error("Error getting session:", error.message);
+                }
             }
             if (isMounted) {
                 setSession(session);

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
 import { Dirham } from '@/components/Dirham'
+import { ArrowLeft } from 'lucide-react'
 
 export default function AddTransaction() {
     const { user, loading: authLoading } = useAuth()
@@ -28,7 +29,7 @@ export default function AddTransaction() {
 
     // Predefined options
     const categoriesUrl = {
-        Income: ['Salary', 'Freelance', 'Investment', 'Gift', 'Other'],
+        Income: ['Salary', 'Rent', 'Dividend', 'Interest', 'Gift'],
         Expense: ['Food', 'Transport', 'Housing', 'Utilities', 'Entertainment', 'Healthcare', 'Shopping', 'Other']
     }
     const necessityOptions = ['Need', 'Want', 'Savings', 'Wasted']
@@ -77,94 +78,235 @@ export default function AddTransaction() {
 
     if (authLoading || !user) {
         return (
-            <main className="container animate-fade-in" style={{ padding: "2rem", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
-                <p style={{ opacity: 0.6, fontSize: "1.2rem" }}>Loading...</p>
+            <main style={{ padding: "2rem", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f4f6fa" }}>
+                <p style={{ opacity: 0.6, fontSize: "1.2rem", color: "#1a1a1a" }}>Loading...</p>
             </main>
         )
     }
 
+    const defaultInputStyle = {
+        padding: "1rem",
+        borderRadius: "12px",
+        border: "1px solid rgba(0,0,0,0.05)",
+        background: "rgba(0,0,0,0.02)",
+        width: "100%",
+        fontSize: "1rem",
+        color: "#1a1a1a",
+        outline: "none",
+        transition: "var(--transition)"
+    }
+
+    const primaryButtonStyle = {
+        padding: "1rem",
+        borderRadius: "var(--radius-full)",
+        background: "var(--primary)", // Purple
+        color: "#ffffff",
+        fontWeight: "700",
+        fontSize: "1rem",
+        border: "none",
+        cursor: "pointer",
+        boxShadow: "0 4px 14px rgba(67, 97, 238, 0.4)",
+        transition: "var(--transition)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        marginTop: "1rem"
+    }
+
     return (
-        <main className="container animate-fade-in" style={{ padding: "2rem", maxWidth: "600px", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <header style={{ marginBottom: "2rem" }}>
-                <Link href="/" style={{ display: "inline-flex", alignItems: "center", color: "var(--foreground)", opacity: 0.7, marginBottom: "1rem" }}>
-                    <span style={{ marginRight: "0.5rem" }}>←</span> Back to Dashboard
-                </Link>
-                <h1 style={{ fontSize: "2rem", fontWeight: "700" }}>Add Transaction</h1>
-            </header>
+        <main className="animate-fade-in" style={{
+            minHeight: "100vh",
+            background: "#f4f6fa", // Consistent light grey bg
+            color: "#1a1a1a",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "2rem 1rem"
+        }}>
+            <div style={{ width: "100%", maxWidth: "450px", display: "flex", flexDirection: "column" }}>
 
-            <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                {/* Header matching details page */}
+                <header style={{ display: "flex", alignItems: "center", gap: "0.25rem", marginBottom: "2rem" }}>
+                    <Link href="/" style={{
+                        padding: "0.5rem",
+                        borderRadius: "50%",
+                        background: "transparent",
+                        border: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        color: "#1a1a1a",
+                        marginLeft: "-0.5rem"
+                    }}>
+                        <ArrowLeft size={24} />
+                    </Link>
+                    <h1 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#1a1a1a", letterSpacing: "-0.5px" }}>Add Transaction</h1>
+                </header>
 
-                {/* Type selector */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", background: "var(--background)", padding: "0.25rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
-                    <button type="button" onClick={() => handleChange({ target: { name: 'type', value: 'Income' } })}
-                        style={{
-                            padding: "0.5rem", borderRadius: "calc(var(--radius-md) - 0.25rem)", border: "none", cursor: "pointer", fontWeight: "600", transition: "var(--transition)",
-                            background: formData.type === 'Income' ? 'var(--surface)' : 'transparent',
-                            boxShadow: formData.type === 'Income' ? 'var(--shadow-sm)' : 'none',
-                            color: formData.type === 'Income' ? 'var(--success)' : 'inherit'
-                        }}>Income</button>
+                <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
-                    <button type="button" onClick={() => handleChange({ target: { name: 'type', value: 'Expense' } })}
-                        style={{
-                            padding: "0.5rem", borderRadius: "calc(var(--radius-md) - 0.25rem)", border: "none", cursor: "pointer", fontWeight: "600", transition: "var(--transition)",
-                            background: formData.type === 'Expense' ? 'var(--surface)' : 'transparent',
-                            boxShadow: formData.type === 'Expense' ? 'var(--shadow-sm)' : 'none',
-                            color: formData.type === 'Expense' ? 'var(--danger)' : 'inherit'
-                        }}>Expense</button>
-                </div>
+                    {/* Type selector pill (matching image) */}
+                    <div style={{
+                        display: "flex",
+                        background: "rgba(0,0,0,0.03)",
+                        borderRadius: "var(--radius-full)",
+                        padding: "0.25rem",
+                        marginBottom: "0.5rem"
+                    }}>
+                        <button type="button" onClick={() => handleChange({ target: { name: 'type', value: 'Income' } })}
+                            style={{
+                                flex: 1,
+                                padding: "0.75rem",
+                                borderRadius: "var(--radius-full)",
+                                border: "none",
+                                cursor: "pointer",
+                                fontWeight: "600",
+                                fontSize: "0.95rem",
+                                transition: "var(--transition)",
+                                background: formData.type === 'Income' ? '#ffffff' : 'transparent',
+                                boxShadow: formData.type === 'Income' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+                                color: formData.type === 'Income' ? '#1a1a1a' : 'rgba(0,0,0,0.5)' // Image shows black text for unselected/selected income, wait, image shows Red for expense
+                            }}>
+                            Income
+                        </button>
+                        <button type="button" onClick={() => handleChange({ target: { name: 'type', value: 'Expense' } })}
+                            style={{
+                                flex: 1,
+                                padding: "0.75rem",
+                                borderRadius: "var(--radius-full)",
+                                border: "none",
+                                cursor: "pointer",
+                                fontWeight: "600",
+                                fontSize: "0.95rem",
+                                transition: "var(--transition)",
+                                background: formData.type === 'Expense' ? '#ffffff' : 'transparent',
+                                boxShadow: formData.type === 'Expense' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
+                                color: formData.type === 'Expense' ? 'var(--danger)' : 'rgba(0,0,0,0.5)'
+                            }}>
+                            Expense
+                        </button>
+                    </div>
 
-                {/* Amount */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>Amount (<Dirham />)</label>
-                    <input required type="number" name="amount" step="0.01" min="0" value={formData.amount} onChange={handleChange}
-                        placeholder="0.00"
-                        style={{ padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontSize: "1.5rem", fontWeight: "600" }}
-                    />
-                </div>
-
-                {/* Date & Description Row */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "1rem" }}>
+                    {/* Amount */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem" }}>Date</label>
-                        <input required type="date" name="date" value={formData.date} onChange={handleChange}
-                            style={{ padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)" }}
+                        <label style={{ fontWeight: "600", color: "rgba(0,0,0,0.7)", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                            Amount (<Dirham />)
+                        </label>
+                        <input
+                            required
+                            type="number"
+                            name="amount"
+                            step="0.01"
+                            min="0"
+                            value={formData.amount}
+                            onChange={handleChange}
+                            placeholder="0.00"
+                            style={{
+                                ...defaultInputStyle,
+                                fontSize: "1.5rem",
+                                fontWeight: "700",
+                                color: "rgba(0,0,0,0.6)",
+                                padding: "1.2rem 1.5rem"
+                            }}
+                            onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                            onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
                         />
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem" }}>Description</label>
-                        <input required type="text" name="description" value={formData.description} onChange={handleChange} placeholder="e.g. Groceries at Walmart"
-                            style={{ padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)" }}
-                        />
+
+                    {/* Date & Description Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <label style={{ fontWeight: "600", color: "rgba(0,0,0,0.7)", fontSize: "0.95rem" }}>Date</label>
+                            <input
+                                required
+                                type="date"
+                                name="date"
+                                value={formData.date}
+                                onChange={handleChange}
+                                style={defaultInputStyle}
+                                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <label style={{ fontWeight: "600", color: "rgba(0,0,0,0.7)", fontSize: "0.95rem" }}>Description</label>
+                            <input
+                                required
+                                type="text"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleChange}
+                                placeholder="e.g. Groceries"
+                                style={defaultInputStyle}
+                                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            />
+                        </div>
                     </div>
-                </div>
 
-                {/* Category & Necessity Row */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem" }}>Category</label>
-                        <select name="category" value={formData.category} onChange={handleChange}
-                            style={{ padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", cursor: "pointer" }}
-                        >
-                            {categoriesUrl[formData.type].map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                        </select>
+                    {/* Category/Source Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <label style={{ fontWeight: "600", color: "rgba(0,0,0,0.7)", fontSize: "0.95rem" }}>
+                                {formData.type === 'Income' ? 'Source' : 'Category'}
+                            </label>
+                            <select
+                                name="category"
+                                value={formData.category}
+                                onChange={handleChange}
+                                style={{ ...defaultInputStyle, cursor: "pointer" }}
+                                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            >
+                                {categoriesUrl[formData.type].map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                            </select>
+                        </div>
+
+                        {/* Hide Intent when Income as requested */}
+                        {formData.type === 'Expense' ? (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                <label style={{ fontWeight: "600", color: "rgba(0,0,0,0.7)", fontSize: "0.95rem" }}>Intent</label>
+                                <select
+                                    name="necessity"
+                                    value={formData.necessity}
+                                    onChange={handleChange}
+                                    style={{ ...defaultInputStyle, cursor: "pointer" }}
+                                    onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                                    onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                                >
+                                    {necessityOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                </select>
+                            </div>
+                        ) : (
+                            <div /> // Empty placeholder to maintain grid layout
+                        )}
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <label style={{ fontWeight: "500", opacity: 0.8, fontSize: "0.9rem" }}>Necessity</label>
-                        <select name="necessity" value={formData.necessity} onChange={handleChange}
-                            style={{ padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", cursor: "pointer" }}
-                        >
-                            {necessityOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                        </select>
-                    </div>
-                </div>
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        style={primaryButtonStyle}
+                        disabled={loading}
+                        onMouseEnter={(e) => {
+                            if (!loading) {
+                                e.currentTarget.style.transform = "translateY(-2px)";
+                                e.currentTarget.style.boxShadow = "0 6px 20px rgba(67, 97, 238, 0.5)";
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!loading) {
+                                e.currentTarget.style.transform = "translateY(0)";
+                                e.currentTarget.style.boxShadow = "0 4px 14px rgba(67, 97, 238, 0.4)";
+                            }
+                        }}
+                    >
+                        {loading ? 'Adding...' : 'Add Transaction'}
+                    </button>
 
-                {/* Submit */}
-                <button type="submit" className="btn" disabled={loading} style={{ marginTop: "1rem" }}>
-                    {loading ? 'Adding Transaction...' : 'Add Transaction'}
-                </button>
-
-            </form>
+                </form>
+            </div>
         </main>
     )
 }

@@ -46,13 +46,13 @@ export default function Dashboard() {
 
   // Calculate stats over all fetched transactions
   const totalBalance = transactions.reduce((acc, curr) =>
-    curr.type === 'Income' ? acc + Number(curr.amount) : acc - Number(curr.amount), 5560.43 // Initial seed for mock look
+    curr.type === 'Income' ? acc + Number(curr.amount) : acc - Number(curr.amount), 0
   )
   const totalIncome = transactions.reduce((acc, curr) =>
-    curr.type === 'Income' ? acc + Number(curr.amount) : acc, 34343.00
+    curr.type === 'Income' ? acc + Number(curr.amount) : acc, 0
   )
   const totalExpense = transactions.reduce((acc, curr) =>
-    curr.type === 'Expense' ? acc + Number(curr.amount) : acc, 24343.00
+    curr.type === 'Expense' ? acc + Number(curr.amount) : acc, 0
   )
 
   // Calculate necessity stats (assuming we only sum Expenses for these categories, or absolute amounts. We'll sum absolute amounts for now)
@@ -60,13 +60,13 @@ export default function Dashboard() {
     return transactions.reduce((acc, curr) => curr.necessity === necessity ? acc + Number(curr.amount) : acc, 0)
   }
 
-  const totalNeed = sumNecessity('Need') || 453.00 // fallback mock if 0 for visual check
-  const totalWant = sumNecessity('Want') || 120.00
-  const totalSavingsCat = sumNecessity('Savings') || 500.00
-  const totalWasted = sumNecessity('Wasted') || 45.00
+  const totalNeed = sumNecessity('Need')
+  const totalWant = sumNecessity('Want')
+  const totalSavingsCat = sumNecessity('Savings')
+  const totalWasted = sumNecessity('Wasted')
 
   // Total for percentage calculations (only counting transactions that have a necessity)
-  const dynamicTotal = sumNecessity('Need') + sumNecessity('Want') + sumNecessity('Savings') + sumNecessity('Wasted') || 1;
+  const dynamicTotal = (sumNecessity('Need') + sumNecessity('Want') + sumNecessity('Savings') + sumNecessity('Wasted')) || 1;
 
   if (authLoading) {
     return (
@@ -243,13 +243,7 @@ export default function Dashboard() {
 
           <div className="hide-scrollbar" style={{ display: "flex", gap: "1rem", overflowX: "auto", padding: "0 1.5rem", paddingBottom: "1rem", snapType: "x mandatory" }}>
 
-            {/* Add Button */}
-            <Link href="/add" style={{ flexShrink: 0, snapAlign: "start", width: "80px", border: "1px dashed rgba(255,255,255,0.3)", borderRadius: "var(--radius-lg)", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", transition: "var(--transition)" }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "var(--primary)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
-            >
-              <Plus size={24} color="rgba(255,255,255,0.6)" />
-            </Link>
+            {/* Add Button removed per request */}
 
             {/* Needs Card */}
             <div style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-purple)", borderRadius: "var(--radius-lg)", padding: "1.5rem" }}>
@@ -327,39 +321,26 @@ export default function Dashboard() {
           </div>
 
           <div style={{ padding: "0 1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {/* Adding the mock shopping transaction exactly like in the picture as a top item if no data or to supplement */}
-            <div style={{
-              background: "rgba(255,255,255,0.03)",
-              borderRadius: "var(--radius-lg)",
-              padding: "1rem",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                  <ShoppingBag size={20} color="var(--primary)" />
-                </div>
-                <div>
-                  <h4 style={{ fontWeight: "500", fontSize: "1rem" }}>Shopping</h4>
-                  <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", marginTop: "0.2rem" }}>Jan 11, 12:23</p>
-                </div>
-              </div>
-              <p style={{ fontWeight: "500", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "0.1rem" }}>-<Dirham /> 211.00</p>
-            </div>
+            {/* Removed the mock shopping transaction as requested */}
 
             {loading ? (
               <p style={{ textAlign: "center", opacity: 0.5, padding: "1rem 0" }}>Loading...</p>
             ) : (
               transactions.slice(0, 5).map((t) => (
-                <div key={t.id} style={{
+                <Link href={`/transaction/${t.id}`} key={t.id} style={{
                   background: "rgba(255,255,255,0.03)",
                   borderRadius: "var(--radius-lg)",
                   padding: "1rem",
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center"
-                }}>
+                  alignItems: "center",
+                  textDecoration: "none",
+                  color: "inherit",
+                  transition: "var(--transition)"
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                >
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                     <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center" }}>
                       {/* Simplified icon for DB items */}
@@ -375,7 +356,7 @@ export default function Dashboard() {
                   <p style={{ fontWeight: "500", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>
                     {t.type === 'Income' ? '+' : '-'}<Dirham /> {Number(t.amount).toFixed(2)}
                   </p>
-                </div>
+                </Link>
               ))
             )}
           </div>
