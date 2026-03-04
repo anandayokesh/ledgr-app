@@ -57,7 +57,7 @@ export default function Dashboard() {
 
   // Calculate necessity stats (assuming we only sum Expenses for these categories, or absolute amounts. We'll sum absolute amounts for now)
   const sumNecessity = (necessity) => {
-    return transactions.reduce((acc, curr) => curr.necessity === necessity ? acc + Number(curr.amount) : acc, 0)
+    return transactions.reduce((acc, curr) => curr.type === 'Expense' && curr.necessity === necessity ? acc + Number(curr.amount) : acc, 0)
   }
 
   const totalNeed = sumNecessity('Need')
@@ -209,15 +209,15 @@ export default function Dashboard() {
           boxShadow: "0 10px 30px rgba(67, 97, 238, 0.4)",
           transform: "translateY(2rem)" // Pulls it over the dark section
         }}>
-          <div>
+          <Link href="/intent/Income" style={{ textDecoration: "none", color: "inherit" }}>
             <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: "500", marginBottom: "0.25rem" }}>Income</p>
             <p style={{ fontSize: "1.2rem", fontWeight: "600", color: "#ffffff", display: "flex", alignItems: "center", gap: "0.2rem" }}>+<Dirham /> {totalIncome.toFixed(2)}</p>
-          </div>
+          </Link>
           <div style={{ width: "1px", background: "rgba(255,255,255,0.2)", height: "40px", alignSelf: "center" }}></div>
-          <div style={{ textAlign: "right" }}>
+          <Link href="/intent/Expense" style={{ textDecoration: "none", color: "inherit", textAlign: "right" }}>
             <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: "500", marginBottom: "0.25rem" }}>Spendings</p>
             <p style={{ fontSize: "1.2rem", fontWeight: "600", color: "#ffffff", display: "flex", alignItems: "center", gap: "0.2rem" }}>-<Dirham /> {totalExpense.toFixed(2)}</p>
-          </div>
+          </Link>
         </div>
       </section>
 
@@ -229,13 +229,13 @@ export default function Dashboard() {
         borderTopLeftRadius: "var(--radius-xl)",
         borderTopRightRadius: "var(--radius-xl)",
         paddingTop: "4rem", // Space for the overhanging yellow card
-        paddingBottom: "2rem"
+        paddingBottom: "6rem" // extra space for bottom nav
       }}>
 
         {/* Categories Module */}
         <div style={{ marginBottom: "2rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 1.5rem", marginBottom: "1rem" }}>
-            <h3 style={{ fontSize: "1.4rem", fontWeight: "500" }}>Categories</h3>
+            <h3 style={{ fontSize: "1.4rem", fontWeight: "500" }}>Intent</h3>
             <button style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--fg-dark)", width: "32px", height: "32px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
               <MoreHorizontal size={16} />
             </button>
@@ -246,7 +246,7 @@ export default function Dashboard() {
             {/* Add Button removed per request */}
 
             {/* Needs Card */}
-            <div style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-purple)", borderRadius: "var(--radius-lg)", padding: "1.5rem" }}>
+            <Link href="/intent/Need" style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-purple)", borderRadius: "var(--radius-lg)", padding: "1.5rem", textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
                 <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.2)", display: "flex", justifyContent: "center", alignItems: "center" }}>
                   <Heart size={18} color="#fff" />
@@ -257,10 +257,10 @@ export default function Dashboard() {
               <span style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalNeed / dynamicTotal) * 100)}%
               </span>
-            </div>
+            </Link>
 
             {/* Wants Card */}
-            <div style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-blue)", borderRadius: "var(--radius-lg)", padding: "1.5rem" }}>
+            <Link href="/intent/Want" style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-blue)", borderRadius: "var(--radius-lg)", padding: "1.5rem", textDecoration: "none", color: "inherit" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
                 <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.2)", display: "flex", justifyContent: "center", alignItems: "center" }}>
                   <Star size={18} color="#fff" />
@@ -271,10 +271,10 @@ export default function Dashboard() {
               <span style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalWant / dynamicTotal) * 100)}%
               </span>
-            </div>
+            </Link>
 
             {/* Savings Card */}
-            <div style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-green)", borderRadius: "var(--radius-lg)", padding: "1.5rem", color: "#000" }}>
+            <Link href="/intent/Savings" style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-green)", borderRadius: "var(--radius-lg)", padding: "1.5rem", color: "#000", textDecoration: "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
                 <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(0,0,0,0.1)", display: "flex", justifyContent: "center", alignItems: "center" }}>
                   <PiggyBank size={18} color="#000" />
@@ -285,10 +285,10 @@ export default function Dashboard() {
               <span style={{ display: "inline-block", background: "rgba(0,0,0,0.1)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalSavingsCat / dynamicTotal) * 100)}%
               </span>
-            </div>
+            </Link>
 
             {/* Waste Card */}
-            <div style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-red)", borderRadius: "var(--radius-lg)", padding: "1.5rem", color: "#fff" }}>
+            <Link href="/intent/Wasted" style={{ flexShrink: 0, snapAlign: "start", width: "160px", background: "var(--card-red)", borderRadius: "var(--radius-lg)", padding: "1.5rem", color: "#fff", textDecoration: "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
                 <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "rgba(255,255,255,0.2)", display: "flex", justifyContent: "center", alignItems: "center" }}>
                   <Flame size={18} color="#fff" />
@@ -299,7 +299,7 @@ export default function Dashboard() {
               <span style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalWasted / dynamicTotal) * 100)}%
               </span>
-            </div>
+            </Link>
 
           </div>
 
@@ -326,7 +326,7 @@ export default function Dashboard() {
             {loading ? (
               <p style={{ textAlign: "center", opacity: 0.5, padding: "1rem 0" }}>Loading...</p>
             ) : (
-              transactions.slice(0, 5).map((t) => (
+              transactions.slice(0, 10).map((t) => (
                 <Link href={`/transaction/${t.id}`} key={t.id} style={{
                   background: "rgba(255,255,255,0.03)",
                   borderRadius: "var(--radius-lg)",
@@ -363,35 +363,6 @@ export default function Dashboard() {
         </div>
 
       </section>
-
-      {/* Floating Action Button for Add Transaction */}
-      <Link href="/add" style={{
-        position: "fixed",
-        bottom: "2rem",
-        right: "1.5rem",
-        width: "56px",
-        height: "56px",
-        borderRadius: "50%",
-        background: "var(--primary)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        boxShadow: "0 10px 20px rgba(67, 97, 238, 0.4)",
-        color: "#ffffff",
-        zIndex: 50,
-        transition: "var(--transition)"
-      }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "translateY(-4px)";
-          e.currentTarget.style.boxShadow = "0 14px 28px rgba(67, 97, 238, 0.6)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 10px 20px rgba(67, 97, 238, 0.4)";
-        }}
-      >
-        <Plus size={28} />
-      </Link>
 
     </main>
   )

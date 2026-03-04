@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import AppShell from "@/components/AppShell";
 
 export const metadata = {
   title: "Ledgr | Premium Transaction Tracker",
@@ -11,7 +12,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          {children}
+          <AppShell>{children}</AppShell>
         </AuthProvider>
       </body>
     </html>
