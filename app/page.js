@@ -5,8 +5,8 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, Home, Utensils, MoreHorizontal, ShoppingBag, Heart, Star, PiggyBank, Flame } from 'lucide-react'
-import { Dirham } from '@/components/Dirham'
+import { Plus, Home, Utensils, MoreHorizontal, ShoppingBag, Heart, Star, PiggyBank, Flame, LogOut } from 'lucide-react'
+import { CurrencySymbol } from '@/components/CurrencySymbol'
 
 export default function Dashboard() {
   const { user, profile, loading: authLoading } = useAuth()
@@ -32,13 +32,18 @@ export default function Dashboard() {
       // Removed .limit(5) so stats compute over all data. We will slice the list below to 5.
 
       if (error) {
-        throw error
+        // RLS or permission errors from Supabase can return empty error objects
+        // Treat them gracefully by showing no transactions instead of crashing
+        if (error.message) {
+          throw error
+        }
+        console.warn('Supabase returned an error (possibly RLS):', error)
       }
       if (data != null) {
         setTransactions(data)
       }
     } catch (error) {
-      console.error('Error fetching transactions:', error)
+      console.error('Error fetching transactions:', error?.message || error)
     } finally {
       setLoading(false)
     }
@@ -163,30 +168,22 @@ export default function Dashboard() {
               router.refresh()
             }}
             style={{
-              padding: "0.5rem 1.25rem",
-              borderRadius: "var(--radius-full)",
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
               background: "var(--primary)",
+              backdropFilter: "blur(4px)",
               border: "none",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              color: "#ffffff",
-              fontWeight: "600",
-              fontSize: "0.85rem",
-              boxShadow: "0 4px 14px rgba(67, 97, 238, 0.3)",
-              transition: "var(--transition)"
+              transition: "var(--transition)",
+              boxShadow: "0 4px 14px rgba(67, 97, 238, 0.3)"
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 6px 20px rgba(67, 97, 238, 0.5)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 14px rgba(67, 97, 238, 0.3)";
-            }}
+            title="Log Out"
           >
-            Log Out
+            <LogOut size={18} color="#ffffff" />
           </button>
         </header>
 
@@ -194,7 +191,7 @@ export default function Dashboard() {
         <div style={{ marginBottom: "1.5rem" }}>
           <p className="text-muted" style={{ fontSize: "1.1rem", marginBottom: "0.5rem", fontWeight: "500" }}>Total Balance</p>
           <h1 style={{ display: "flex", alignItems: "baseline", color: "var(--foreground)", fontWeight: "600" }}>
-            <span style={{ fontSize: "3rem", letterSpacing: "-1px" }}><Dirham /> {bal.int}</span>
+            <span style={{ fontSize: "3rem", letterSpacing: "-1px" }}><CurrencySymbol /> {bal.int}</span>
             <span style={{ fontSize: "2rem", color: "#a0aabf" }}>.{bal.frac}</span>
           </h1>
         </div>
@@ -211,12 +208,12 @@ export default function Dashboard() {
         }}>
           <Link href="/intent/Income" style={{ textDecoration: "none", color: "inherit" }}>
             <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: "500", marginBottom: "0.25rem" }}>Income</p>
-            <p style={{ fontSize: "1.2rem", fontWeight: "600", color: "#ffffff", display: "flex", alignItems: "center", gap: "0.2rem" }}>+<Dirham /> {totalIncome.toFixed(2)}</p>
+            <p style={{ fontSize: "1.2rem", fontWeight: "600", color: "#ffffff", display: "flex", alignItems: "center", gap: "0.2rem" }}>+<CurrencySymbol /> {totalIncome.toFixed(2)}</p>
           </Link>
           <div style={{ width: "1px", background: "rgba(255,255,255,0.2)", height: "40px", alignSelf: "center" }}></div>
           <Link href="/intent/Expense" style={{ textDecoration: "none", color: "inherit", textAlign: "right" }}>
             <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)", fontWeight: "500", marginBottom: "0.25rem" }}>Spendings</p>
-            <p style={{ fontSize: "1.2rem", fontWeight: "600", color: "#ffffff", display: "flex", alignItems: "center", gap: "0.2rem" }}>-<Dirham /> {totalExpense.toFixed(2)}</p>
+            <p style={{ fontSize: "1.2rem", fontWeight: "600", color: "#ffffff", display: "flex", alignItems: "center", gap: "0.2rem" }}>-<CurrencySymbol /> {totalExpense.toFixed(2)}</p>
           </Link>
         </div>
       </section>
@@ -253,7 +250,7 @@ export default function Dashboard() {
                 </div>
                 <span style={{ fontSize: "0.9rem", fontWeight: "500" }}>Needs</span>
               </div>
-              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><Dirham /> {totalNeed.toFixed(2)}</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><CurrencySymbol /> {totalNeed.toFixed(2)}</p>
               <span style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalNeed / dynamicTotal) * 100)}%
               </span>
@@ -267,7 +264,7 @@ export default function Dashboard() {
                 </div>
                 <span style={{ fontSize: "0.9rem", fontWeight: "500" }}>Wants</span>
               </div>
-              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><Dirham /> {totalWant.toFixed(2)}</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><CurrencySymbol /> {totalWant.toFixed(2)}</p>
               <span style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalWant / dynamicTotal) * 100)}%
               </span>
@@ -281,7 +278,7 @@ export default function Dashboard() {
                 </div>
                 <span style={{ fontSize: "0.9rem", fontWeight: "500" }}>Savings</span>
               </div>
-              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><Dirham /> {totalSavingsCat.toFixed(2)}</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><CurrencySymbol /> {totalSavingsCat.toFixed(2)}</p>
               <span style={{ display: "inline-block", background: "rgba(0,0,0,0.1)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalSavingsCat / dynamicTotal) * 100)}%
               </span>
@@ -295,7 +292,7 @@ export default function Dashboard() {
                 </div>
                 <span style={{ fontSize: "0.9rem", fontWeight: "500" }}>Waste</span>
               </div>
-              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><Dirham /> {totalWasted.toFixed(2)}</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.2rem" }}><CurrencySymbol /> {totalWasted.toFixed(2)}</p>
               <span style={{ display: "inline-block", background: "rgba(255,255,255,0.2)", padding: "0.2rem 0.6rem", borderRadius: "var(--radius-full)", fontSize: "0.75rem" }}>
                 {Math.round((totalWasted / dynamicTotal) * 100)}%
               </span>
@@ -344,7 +341,7 @@ export default function Dashboard() {
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                     <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center" }}>
                       {/* Simplified icon for DB items */}
-                      <div style={{ color: t.type === 'Income' ? 'var(--success)' : 'var(--primary)', fontWeight: "bold", display: "flex", alignItems: "center", gap: "0.1rem" }}>{t.type === 'Income' ? '+' : '-'}<Dirham /></div>
+                      <div style={{ color: t.type === 'Income' ? 'var(--success)' : 'var(--primary)', fontWeight: "bold", display: "flex", alignItems: "center", gap: "0.1rem" }}>{t.type === 'Income' ? '+' : '-'}<CurrencySymbol /></div>
                     </div>
                     <div>
                       <h4 style={{ fontWeight: "500", fontSize: "1rem" }}>{t.description}</h4>
@@ -354,7 +351,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <p style={{ fontWeight: "500", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>
-                    {t.type === 'Income' ? '+' : '-'}<Dirham /> {Number(t.amount).toFixed(2)}
+                    {t.type === 'Income' ? '+' : '-'}<CurrencySymbol /> {Number(t.amount).toFixed(2)}
                   </p>
                 </Link>
               ))

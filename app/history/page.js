@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/components/AuthProvider'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Dirham } from '@/components/Dirham'
+import { CurrencySymbol } from '@/components/CurrencySymbol'
 
 export default function History() {
     const { user, loading: authLoading } = useAuth()
@@ -74,7 +74,7 @@ export default function History() {
                         >
                             <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                                 <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                                    <div style={{ color: t.type === 'Income' ? 'var(--success)' : 'var(--primary)', fontWeight: "bold", display: "flex", alignItems: "center", gap: "0.1rem" }}>{t.type === 'Income' ? '+' : '-'}<Dirham /></div>
+                                    <div style={{ color: t.type === 'Income' ? 'var(--success)' : 'var(--primary)', fontWeight: "bold", display: "flex", alignItems: "center", gap: "0.1rem" }}>{t.type === 'Income' ? '+' : '-'}<CurrencySymbol /></div>
                                 </div>
                                 <div>
                                     <h4 style={{ fontWeight: "500", fontSize: "1rem" }}>{t.description}</h4>
@@ -84,7 +84,7 @@ export default function History() {
                                 </div>
                             </div>
                             <p style={{ fontWeight: "500", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>
-                                {t.type === 'Income' ? '+' : '-'}<Dirham /> {Number(t.amount).toFixed(2)}
+                                {t.type === 'Income' ? '+' : '-'}<CurrencySymbol /> {Number(t.amount).toFixed(2)}
                             </p>
                         </Link>
                     ))

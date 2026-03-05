@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Check, Trash2, Edit2, X, Save } from 'lucide-react'
-import { Dirham } from '@/components/Dirham'
+import { CurrencySymbol } from '@/components/CurrencySymbol'
 import { useAuth } from '@/components/AuthProvider'
 
 export default function TransactionDetails() {
@@ -240,7 +240,7 @@ export default function TransactionDetails() {
 
                             {isEditing ? (
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                                    <Dirham />
+                                    <CurrencySymbol />
                                     <input
                                         type="number"
                                         name="amount"
@@ -251,7 +251,7 @@ export default function TransactionDetails() {
                                 </div>
                             ) : (
                                 <h2 style={{ fontSize: "2rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "0.1rem", marginBottom: "0.5rem", color: amountColor, letterSpacing: "-0.5px" }}>
-                                    {isIncome ? '+' : '-'}<Dirham /> {Number(amount).toFixed(2)}
+                                    {isIncome ? '+' : '-'}<CurrencySymbol /> {Number(amount).toFixed(2)}
                                 </h2>
                             )}
 
@@ -327,7 +327,7 @@ export default function TransactionDetails() {
                                 <>
                                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.95rem" }}>
                                         <span style={{ color: "rgba(0,0,0,0.5)" }}>Amount {isIncome ? 'received' : 'sent'}</span>
-                                        <span style={{ fontWeight: "500", color: "#1a1a1a", display: "flex", alignItems: "center", gap: "0.1rem" }}><Dirham /> {Number(amount).toFixed(2)}</span>
+                                        <span style={{ fontWeight: "500", color: "#1a1a1a", display: "flex", alignItems: "center", gap: "0.1rem" }}><CurrencySymbol /> {Number(amount).toFixed(2)}</span>
                                     </div>
                                 </>
                             )}

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import Link from 'next/link'
-import { Dirham } from '@/components/Dirham'
+import { CurrencySymbol } from '@/components/CurrencySymbol'
 import { ArrowLeft } from 'lucide-react'
 
 export default function AddTransaction() {
@@ -192,7 +192,7 @@ export default function AddTransaction() {
                     {/* Amount */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         <label style={{ fontWeight: "600", color: "rgba(0,0,0,0.7)", fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.2rem" }}>
-                            Amount (<Dirham />)
+                            Amount (<CurrencySymbol />)
                         </label>
                         <input
                             required

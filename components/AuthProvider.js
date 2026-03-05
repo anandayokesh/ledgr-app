@@ -14,31 +14,36 @@ export const AuthProvider = ({ children }) => {
     const router = useRouter();
     const pathname = usePathname();
 
+    const fetchProfile = async (userId) => {
+        if (!userId) {
+            setProfile(null);
+            return;
+        }
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (!error && data) {
+            setProfile(data);
+        }
+    };
+
+    // Exposed function so pages can trigger a profile re-fetch (e.g. after saving settings)
+    const refreshProfile = async () => {
+        if (user?.id) {
+            await fetchProfile(user.id);
+        }
+    };
+
     useEffect(() => {
         let isMounted = true;
-
-        const fetchProfile = async (userId) => {
-            if (!userId) {
-                if (isMounted) setProfile(null);
-                return;
-            }
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (!error && data && isMounted) {
-                setProfile(data);
-            }
-        };
 
         const getSession = async () => {
             const { data: { session }, error } = await supabase.auth.getSession();
             if (error) {
                 if (error.message.includes('Refresh Token Not Found')) {
-                    // This error is common when the server session is revoked but local storage still has the old token.
-                    // We can silently sign out to clean up the stale local storage state and the user will just be logged out.
                     await supabase.auth.signOut();
                 } else {
                     console.error("Error getting session:", error.message);
@@ -78,7 +83,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, profile, session, loading }}>
+        <AuthContext.Provider value={{ user, profile, session, loading, refreshProfile }}>
             {children}
         </AuthContext.Provider>
     );

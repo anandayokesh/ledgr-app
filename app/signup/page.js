@@ -4,6 +4,34 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { CURRENCIES } from '@/components/CurrencySymbol'
+
+const COUNTRIES = [
+    "Afghanistan", "Albania", "Algeria", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+    "Bahrain", "Bangladesh", "Belarus", "Belgium", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brunei", "Bulgaria",
+    "Cambodia", "Cameroon", "Canada", "Chile", "China", "Colombia", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+    "Denmark", "Dominican Republic",
+    "Ecuador", "Egypt", "El Salvador", "Estonia", "Ethiopia",
+    "Finland", "France",
+    "Georgia", "Germany", "Ghana", "Greece", "Guatemala",
+    "Honduras", "Hong Kong", "Hungary",
+    "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+    "Jamaica", "Japan", "Jordan",
+    "Kazakhstan", "Kenya", "Kuwait", "Kyrgyzstan",
+    "Latvia", "Lebanon", "Libya", "Lithuania", "Luxembourg",
+    "Macau", "Malaysia", "Maldives", "Malta", "Mexico", "Moldova", "Mongolia", "Morocco", "Myanmar",
+    "Nepal", "Netherlands", "New Zealand", "Nigeria", "North Macedonia", "Norway",
+    "Oman",
+    "Pakistan", "Palestine", "Panama", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+    "Qatar",
+    "Romania", "Russia", "Rwanda",
+    "Saudi Arabia", "Senegal", "Serbia", "Singapore", "Slovakia", "Slovenia", "South Africa", "South Korea", "Spain", "Sri Lanka", "Sudan", "Sweden", "Switzerland", "Syria",
+    "Taiwan", "Tanzania", "Thailand", "Tunisia", "Turkey", "Turkmenistan",
+    "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+    "Venezuela", "Vietnam",
+    "Yemen",
+    "Zambia", "Zimbabwe"
+]
 
 export default function SignupPage() {
     const router = useRouter()
@@ -14,7 +42,9 @@ export default function SignupPage() {
         lastName: '',
         phone: '',
         email: '',
-        password: ''
+        password: '',
+        country: '',
+        currency: 'AED'
     })
 
     const handleChange = (e) => {
@@ -35,7 +65,9 @@ export default function SignupPage() {
                     data: {
                         first_name: formData.firstName,
                         last_name: formData.lastName,
-                        phone: formData.phone
+                        phone: formData.phone,
+                        country: formData.country,
+                        currency: formData.currency
                     }
                 }
             })
@@ -49,6 +81,26 @@ export default function SignupPage() {
         } finally {
             setLoading(false)
         }
+    }
+
+    const selectStyle = {
+        padding: "1rem 1.25rem",
+        borderRadius: "var(--radius-md)",
+        border: "1px solid rgba(0,0,0,0.05)",
+        background: "rgba(0,0,0,0.02)",
+        color: "var(--foreground)",
+        fontSize: "1rem",
+        outline: "none",
+        transition: "var(--transition)",
+        cursor: "pointer",
+        width: "100%",
+        appearance: "none",
+        WebkitAppearance: "none",
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 1.25rem center",
+        backgroundSize: "12px",
+        paddingRight: "2.5rem"
     }
 
     return (
@@ -155,6 +207,41 @@ export default function SignupPage() {
                             onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
                             onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
                         />
+                    </div>
+
+                    {/* Country & Currency Row */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <label style={{ fontSize: "0.95rem", fontWeight: "600", color: "rgba(0,0,0,0.7)" }}>Country</label>
+                            <select
+                                required
+                                name="country"
+                                value={formData.country}
+                                onChange={handleChange}
+                                style={selectStyle}
+                                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            >
+                                <option value="" disabled>Select country</option>
+                                {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <label style={{ fontSize: "0.95rem", fontWeight: "600", color: "rgba(0,0,0,0.7)" }}>App Currency</label>
+                            <select
+                                required
+                                name="currency"
+                                value={formData.currency}
+                                onChange={handleChange}
+                                style={selectStyle}
+                                onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; e.currentTarget.style.background = "#fff"; }}
+                                onBlur={(e) => { e.currentTarget.style.borderColor = "rgba(0,0,0,0.05)"; e.currentTarget.style.background = "rgba(0,0,0,0.02)"; }}
+                            >
+                                {CURRENCIES.map(c => (
+                                    <option key={c.code} value={c.code}>{c.symbol}  {c.code} — {c.name}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <button type="submit" disabled={loading}

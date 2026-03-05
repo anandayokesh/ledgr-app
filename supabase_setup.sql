@@ -6,6 +6,8 @@ CREATE TABLE public.profiles (
   first_name TEXT,
   last_name TEXT,
   phone TEXT,
+  country TEXT,
+  currency TEXT DEFAULT 'AED',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -35,12 +37,14 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, first_name, last_name, phone)
+  INSERT INTO public.profiles (id, first_name, last_name, phone, country, currency)
   VALUES (
     new.id,
     new.raw_user_meta_data ->> 'first_name',
     new.raw_user_meta_data ->> 'last_name',
-    new.raw_user_meta_data ->> 'phone'
+    new.raw_user_meta_data ->> 'phone',
+    new.raw_user_meta_data ->> 'country',
+    COALESCE(new.raw_user_meta_data ->> 'currency', 'AED')
   );
   RETURN new;
 END;
@@ -84,3 +88,15 @@ USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own transactions" 
 ON public.transactions FOR DELETE 
 USING (auth.uid() = user_id);
+
+-- ============================================================
+-- MIGRATION: Run this section if you already have an existing
+-- profiles table and need to add country/currency columns.
+-- ============================================================
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS country TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'AED';
+--
+-- Then re-run the CREATE OR REPLACE FUNCTION block above to
+-- update the handle_new_user trigger function.
+-- ============================================================
+
