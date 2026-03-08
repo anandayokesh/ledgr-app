@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import { useEffect, useState } from 'react'
 import { CURRENCIES, getCurrencySymbol } from '@/components/CurrencySymbol'
-import { Phone, Mail, Globe, Coins, Check, LogOut, MapPin } from 'lucide-react'
+import { Phone, Mail, Globe, Coins, Check, LogOut, MapPin, Download } from 'lucide-react'
 
 const COUNTRIES = [
     "Afghanistan", "Albania", "Algeria", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
@@ -39,9 +39,59 @@ export default function Profile() {
     const router = useRouter()
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
+    const [exporting, setExporting] = useState(false)
 
     const [country, setCountry] = useState('')
     const [currency, setCurrency] = useState('AED')
+
+    const handleExportCSV = async () => {
+        setExporting(true)
+        try {
+            const { data, error } = await supabase
+                .from('transactions')
+                .select('*')
+                .order('date', { ascending: false })
+
+            if (error) throw error
+
+            if (!data || data.length === 0) {
+                alert('No transactions to export.')
+                return
+            }
+
+            const headers = ['Date', 'Description', 'Type', 'Category', 'Intent', 'Amount']
+            const csvRows = [
+                headers.join(','),
+                ...data.map(t => {
+                    const escape = (val) => `"${String(val ?? '').replace(/"/g, '""')}"`
+                    return [
+                        escape(t.date?.split('T')[0] || t.date),
+                        escape(t.description),
+                        escape(t.type),
+                        escape(t.category),
+                        escape(t.necessity || ''),
+                        escape(Number(t.amount).toFixed(2))
+                    ].join(',')
+                })
+            ]
+
+            const csvContent = csvRows.join('\n')
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+            const url = URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `ledgr_transactions_${new Date().toISOString().split('T')[0]}.csv`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+        } catch (error) {
+            console.error('Error exporting CSV:', error)
+            alert('Failed to export transactions.')
+        } finally {
+            setExporting(false)
+        }
+    }
 
     useEffect(() => {
         if (profile) {
@@ -319,27 +369,43 @@ export default function Profile() {
                     </div>
                 )}
 
-                {/* Log Out */}
+                {/* Export CSV */}
                 <button
-                    onClick={async () => {
-                        await supabase.auth.signOut()
-                        router.push('/')
-                    }}
+                    onClick={handleExportCSV}
+                    disabled={exporting}
                     style={{
                         width: "100%",
                         padding: "1rem",
                         borderRadius: "var(--radius-full)",
-                        background: "rgba(239, 71, 111, 0.08)",
+                        background: "var(--primary)",
                         border: "none",
-                        color: "var(--danger)",
+                        color: "#ffffff",
                         fontWeight: "600",
                         fontSize: "1rem",
-                        cursor: "pointer",
+                        cursor: exporting ? "not-allowed" : "pointer",
+                        boxShadow: "0 4px 14px rgba(67, 97, 238, 0.3)",
                         transition: "var(--transition)",
-                        marginTop: "0.5rem"
+                        marginTop: "0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.5rem"
+                    }}
+                    onMouseEnter={(e) => {
+                        if (!exporting) {
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                            e.currentTarget.style.boxShadow = "0 6px 20px rgba(67, 97, 238, 0.5)";
+                        }
+                    }}
+                    onMouseLeave={(e) => {
+                        if (!exporting) {
+                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.boxShadow = "0 4px 14px rgba(67, 97, 238, 0.3)";
+                        }
                     }}
                 >
-                    Log Out
+                    <Download size={18} />
+                    {exporting ? 'Exporting...' : 'Export Transactions as CSV'}
                 </button>
             </div>
 
